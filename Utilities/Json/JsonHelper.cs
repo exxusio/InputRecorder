@@ -61,7 +61,7 @@ namespace InputRecorder.Utilities.Json
         /// </summary>
         /// <param name="token">The JToken to convert.</param>
         /// <returns>A JArray representing the token.</returns>
-        public static JArray ToJArray(JToken token)
+        public static JArray ToJArray(JToken? token)
         {
             return token as JArray ?? new JArray();
         }
@@ -71,7 +71,7 @@ namespace InputRecorder.Utilities.Json
         /// </summary>
         /// <param name="token">The JToken to convert.</param>
         /// <returns>A TimeSpan representing the token.</returns>
-        public static TimeSpan JTokenToTimeSpan(JToken token)
+        public static TimeSpan JTokenToTimeSpan(JToken? token)
         {
             return TimeSpan.FromMilliseconds(Convert.ToDouble(token));
         }
