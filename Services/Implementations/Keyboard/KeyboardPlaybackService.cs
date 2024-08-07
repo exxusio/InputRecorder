@@ -1,14 +1,16 @@
-using WindowsInput;
-using WindowsInput.Native;
+using InputRecorder.Services.Interfaces;
 using InputRecorder.Models.Keyboard;
 using InputRecorder.Utilities;
+using WindowsInput.Native;
+using WindowsInput;
 
-namespace InputRecorder.Services.Keyboard
+
+namespace InputRecorder.Services.Implementations.Keyboard
 {
     /// <summary>
     /// Provides functionality to playback recorded keyboard actions.
     /// </summary>
-    internal class KeyboardPlaybackService
+    internal class KeyboardPlaybackService : IPlaybackService
     {
         /// <summary>
         /// Plays back the recorded keyboard actions asynchronously.

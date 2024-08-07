@@ -1,6 +1,6 @@
 using InputRecorder.Models.Keyboard;
-using InputRecorder.Models.Mouse;
 using InputRecorder.Utilities.Json;
+using InputRecorder.Models.Mouse;
 
 namespace InputRecorder.Utilities
 {

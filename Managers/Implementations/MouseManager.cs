@@ -1,12 +1,13 @@
+using InputRecorder.Services.Implementations.Mouse;
+using InputRecorder.Managers.Interfaces;
 using InputRecorder.Models.Mouse;
-using InputRecorder.Services.Mouse;
 
-namespace InputRecorder.Managers
+namespace InputRecorder.Managers.Implementations
 {
     /// <summary>
     /// Manages mouse recording and playback services.
     /// </summary>
-    internal class MouseManager
+    internal class MouseManager : IInputManager
     {
         private MouseRecordingService _mouseRecordingService;
         private MousePlaybackService _mousePlaybackService;

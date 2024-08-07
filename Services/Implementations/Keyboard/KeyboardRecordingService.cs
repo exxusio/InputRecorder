@@ -1,12 +1,13 @@
+using InputRecorder.Services.Interfaces;
 using InputRecorder.Models.Keyboard;
 using InputRecorder.Utilities;
 
-namespace InputRecorder.Services.Keyboard
+namespace InputRecorder.Services.Implementations.Keyboard
 {
     /// <summary>
     /// Provides functionality to record keyboard actions and save them to a file.
     /// </summary>
-    internal class KeyboardRecordingService
+    internal class KeyboardRecordingService : IRecordingService
     {
         private List<KeyAction> _keyActions = new List<KeyAction>();
         private DateTime _recordingStartTime;

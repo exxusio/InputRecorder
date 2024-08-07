@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using InputRecorder.Models.Mouse;
+
 using MouseEventArgs = InputRecorder.Models.Mouse.MouseEventArgs;
 
 namespace InputRecorder.Hooks

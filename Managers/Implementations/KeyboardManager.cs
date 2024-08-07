@@ -1,11 +1,12 @@
-using InputRecorder.Services.Keyboard;
+using InputRecorder.Services.Implementations.Keyboard;
+using InputRecorder.Managers.Interfaces;
 
-namespace InputRecorder.Managers
+namespace InputRecorder.Managers.Implementations
 {
     /// <summary>
     /// Manages keyboard recording and playback services.
     /// </summary>
-    internal class KeyboardManager
+    internal class KeyboardManager : IInputManager
     {
         private KeyboardRecordingService _keyboardRecordingService;
         private KeyboardPlaybackService _keyboardPlaybackService;

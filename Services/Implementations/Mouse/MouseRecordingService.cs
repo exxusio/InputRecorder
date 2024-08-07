@@ -1,12 +1,13 @@
+using InputRecorder.Services.Interfaces;
 using InputRecorder.Models.Mouse;
 using InputRecorder.Utilities;
 
-namespace InputRecorder.Services.Mouse
+namespace InputRecorder.Services.Implementations.Mouse
 {
     /// <summary>
     /// Handles recording of mouse actions and saving them to a file.
     /// </summary>
-    internal class MouseRecordingService
+    internal class MouseRecordingService : IRecordingService
     {
         private List<MouseAction> _mouseActions = new List<MouseAction>();
         private DateTime _recordingStartTime;

@@ -1,7 +1,8 @@
-using InputRecorder.Hooks;
-using InputRecorder.Managers;
+using InputRecorder.Managers.Implementations;
 using InputRecorder.Models.Mouse;
 using InputRecorder.Utilities;
+using InputRecorder.Hooks;
+
 using KeyEventArgs = InputRecorder.Models.Keyboard.KeyEventArgs;
 using MouseEventArgs = InputRecorder.Models.Mouse.MouseEventArgs;
 

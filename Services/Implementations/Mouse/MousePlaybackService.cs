@@ -1,14 +1,14 @@
-using InputRecorder.Hooks;
+using InputRecorder.Services.Interfaces;
 using InputRecorder.Models.Mouse;
 using InputRecorder.Utilities;
 using WindowsInput;
 
-namespace InputRecorder.Services.Mouse
+namespace InputRecorder.Services.Implementations.Mouse
 {
     /// <summary>
     /// Handles playback of recorded mouse actions from a specified file.
     /// </summary>
-    internal class MousePlaybackService
+    internal class MousePlaybackService : IPlaybackService
     {
         private float _inaccuracyX = 34.2f;
         private float _inaccuracyY = 60.8f;

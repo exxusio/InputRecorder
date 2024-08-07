@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+
 using KeyEventArgs = InputRecorder.Models.Keyboard.KeyEventArgs;
 
 namespace InputRecorder.Hooks
