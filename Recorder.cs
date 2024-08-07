@@ -1,6 +1,7 @@
 using InputRecorder.Managers.Implementations;
 using InputRecorder.Models.Mouse;
 using InputRecorder.Utilities;
+using InputRecorder.Configs;
 using InputRecorder.Hooks;
 
 using KeyEventArgs = InputRecorder.Models.Keyboard.KeyEventArgs;
@@ -20,8 +21,11 @@ namespace InputRecorder
         private KeyboardHook _keyboardHook;
         private MouseHook _mouseHook;
 
-        private HashSet<Keys> _keysToRecord;
-        private Keys[] _bindKeys;
+        internal HashSet<Keys> _keysToRecord;
+        internal Keys[] _bindKeys;
+        internal bool _isMouseMove;
+        internal bool _isMouseTracking;
+        internal bool _isKeyboardTracking;
 
         /// <summary>
         /// Gets a value indicating whether the recorder is currently playing back actions.
@@ -34,31 +38,16 @@ namespace InputRecorder
         public bool IsRecording { get; private set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether mouse movement is being recorded.
-        /// </summary>
-        public bool IsMouseMove { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether mouse actions are being tracked.
-        /// </summary>
-        public bool IsMouseTracking { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether keyboard actions are being tracked.
-        /// </summary>
-        public bool IsKeyboardTracking { get; set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="Recorder"/> class.
         /// </summary>
-        public Recorder()
+        internal Recorder()
         {
             IsPlaying = false;
             IsRecording = false;
 
-            IsKeyboardTracking = true;
-            IsMouseTracking = true;
-            IsMouseMove = true;
+            _isKeyboardTracking = true;
+            _isMouseTracking = true;
+            _isMouseMove = true;
 
             _keyboardManager = new KeyboardManager();
             _mouseManager = new MouseManager();
@@ -71,11 +60,24 @@ namespace InputRecorder
         }
 
         /// <summary>
+        /// Creates and configures a new instance of the <see cref="Recorder"/> class.
+        /// </summary>
+        /// <param name="configure">An action to configure the <see cref="RecorderConfigurator"/>.</param>
+        /// <returns>A fully configured <see cref="Recorder"/> instance.</returns>
+        public static Recorder Config(Action<IRecorderConfigurator> configure)
+        {
+            var recorder = new Recorder();
+            var configurator = new RecorderConfigurator(recorder);
+            configure(configurator);
+            return recorder;
+        }
+
+        /// <summary>
         /// Starts recording keyboard and mouse actions. Throws an exception if no keys are specified for recording or binding.
         /// </summary>
         public void StartRecorder()
         {
-            if (_bindKeys.All(key => key == Keys.None) || (IsKeyboardTracking && _keysToRecord.Count == 0))
+            if (_bindKeys.All(key => key == Keys.None) || (_isKeyboardTracking && _keysToRecord.Count == 0))
                 throw new ArgumentNullException("No keys are specified for recording or binding.");
 
             _keyboardHook.KeyPressed += KeyTriggered;
@@ -96,31 +98,10 @@ namespace InputRecorder
         }
 
         /// <summary>
-        /// Sets the file path for recording and playback actions.
-        /// </summary>
-        /// <param name="actionPatch">The file path for recording and playback actions.</param>
-        public void SetActionPatch(string actionPatch)
-        {
-            JsonProcessor.SetActionPatch(actionPatch);
-            JsonProcessor.SetActionPatch(actionPatch);
-        }
-
-        /// <summary>
-        /// Sets the file paths for recording and playback actions.
-        /// </summary>
-        /// <param name="recordingPatch">The file path for recording actions.</param>
-        /// <param name="playbackPatch">The file path for playback actions.</param>
-        public void SetActionPatch(string recordingPatch, string playbackPatch)
-        {
-            JsonProcessor.SetActionPatch(recordingPatch, playbackPatch);
-            JsonProcessor.SetActionPatch(recordingPatch, playbackPatch);
-        }
-
-        /// <summary>
         /// Adds a key to the list of keys to be recorded. Throws an exception if the key is already in the list.
         /// </summary>
         /// <param name="key">The key to add to the recording list.</param>
-        public void AddKeyToRecord(Keys key)
+        internal void AddKeyToRecord(Keys key)
         {
             if (_keysToRecord.Contains(key))
                 throw new InvalidOperationException("The key is already in the list.");
@@ -128,49 +109,6 @@ namespace InputRecorder
                 throw new InvalidOperationException("The key is in the list of bindings.");
 
             _keysToRecord.Add(key);
-        }
-
-        /// <summary>
-        /// Adds a range of keys to the list of keys to be recorded.
-        /// </summary>
-        /// <param name="keys">The list of keys to add to the recording list.</param>
-        public void AddRangeKeyToRecord(List<Keys> keys)
-        {
-            foreach (var key in keys)
-            {
-                AddKeyToRecord(key);
-            }
-        }
-
-        /// <summary>
-        /// Adds all keys to the list of keys to be recorded.
-        /// </summary>
-        public void AddAllKeysToRecord()
-        {
-            List<Keys> uniqueKeys = new List<Keys>();
-
-            foreach (Keys key in Enum.GetValues(typeof(Keys)))
-                uniqueKeys.Add(key);
-
-            foreach (Keys key in uniqueKeys.Distinct().ToList())
-                if (!_bindKeys.Contains(key))
-                    AddKeyToRecord(key);
-        }
-
-        /// <summary>
-        /// Sets the binding keys for starting, stopping recording, and playing actions.
-        /// </summary>
-        /// <param name="start">The key to start recording.</param>
-        /// <param name="end">The key to stop recording.</param>
-        /// <param name="record">The key to play recorded actions.</param>
-        public void SwitchBindKey(Keys start, Keys end, Keys record)
-        {
-            if (_keysToRecord.Contains(start) || _keysToRecord.Contains(end) || _keysToRecord.Contains(record))
-                throw new InvalidOperationException("The key is in the list of recording.");
-
-            _bindKeys[0] = start;
-            _bindKeys[1] = end;
-            _bindKeys[2] = record;
         }
 
         /// <summary>
@@ -192,7 +130,7 @@ namespace InputRecorder
             {
                 await PlayActionsAsync();
             }
-            else if (IsRecording && IsKeyboardTracking && _keysToRecord.Contains(e.KeyCode))
+            else if (IsRecording && _isKeyboardTracking && _keysToRecord.Contains(e.KeyCode))
             {
                 RecordKeyAction(e.KeyCode, e.IsKeyDown);
             }
@@ -205,7 +143,7 @@ namespace InputRecorder
         /// <param name="e">The event arguments containing the mouse event information.</param>
         private void MouseTriggered(object? sender, MouseEventArgs e)
         {
-            if (IsRecording && IsMouseTracking)
+            if (IsRecording && _isMouseTracking)
             {
                 RecordMouseAction(e.EventType, e.Position, e.IsDown);
             }
@@ -247,9 +185,9 @@ namespace InputRecorder
             IsPlaying = true;
 
             var tasks = new List<Task>();
-            if (IsKeyboardTracking)
+            if (_isKeyboardTracking)
                 tasks.Add(_keyboardManager.PlayActionsAsync());
-            if (IsMouseTracking)
+            if (_isMouseTracking)
                 tasks.Add(_mouseManager.PlayActionsAsync());
             await Task.WhenAll(tasks);
 
@@ -275,7 +213,7 @@ namespace InputRecorder
         /// <param name="isDown">A value indicating whether the mouse button is pressed down.</param>
         private void RecordMouseAction(MouseEventType eventType, Point position, bool isDown)
         {
-            if (IsMouseMove || eventType != MouseEventType.Move)
+            if (_isMouseMove || eventType != MouseEventType.Move)
                 _mouseManager.RecordAction(eventType, position, isDown);
         }
     }
